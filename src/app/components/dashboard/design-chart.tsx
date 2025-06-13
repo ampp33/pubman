@@ -10,7 +10,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import {Edit, Trash2, Construction, CircleSlash, FileCheck, ChevronUp, ChevronDown, PlusIcon, SettingsIcon} from "lucide-react";
+import {Edit, Trash2, Construction, CircleSlash, FileCheck, ChevronUp, ChevronDown, PlusIcon, RefreshCcw, SettingsIcon} from "lucide-react";
 import Image from "next/image";
 import log from 'electron-log/renderer';
 
@@ -22,6 +22,7 @@ export default function DesignsChart() {
   const [filter, setFilter] = useState("all"); // all, published, draft, local
   const [sortedDesigns, setSortedDesigns] = useState<DesignSchema[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isSyncing, setIsSyncing] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [sortField, setSortField] = useState<SortField>("updated_at");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
@@ -199,6 +200,23 @@ export default function DesignsChart() {
     }
   };
 
+  const handleSyncDesigns = async () => {
+    try {
+      setIsSyncing(true)
+      await fetch(`/api/design/sync`, {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+    } catch (error) {
+      log.error("Failed to sync designs");
+      setErrorMessage("Failed to sync designs. Please try again.");
+    } finally {
+      setIsSyncing(false)
+    }
+  };
+
   if (isLoading) {
     return <div className="space-y-4">Loading designs...</div>;
   }
@@ -230,6 +248,9 @@ export default function DesignsChart() {
               <PlusIcon/> Add New Design
             </Button>
           </Link>
+          <Button className="ml-auto bg-green-500" variant="default" disabled={isSyncing} onClick={() => handleSyncDesigns()}>
+            <RefreshCcw/> {isSyncing ? 'Syncing...' : 'Sync'}
+          </Button>
           <div className="relative">
             <Button className="ml-auto" variant="outline"
             onClick={() => setManageColumnsIsOpen(!manageColumnsIsOpen)}>
@@ -343,7 +364,11 @@ export default function DesignsChart() {
           </div>
         </div>
       </div>
-      <div className="bg-white shadow rounded-md overflow-hidden">
+      <div className="bg-white shadow rounded-md overflow-hidden relative">
+        {isSyncing && (<div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
+          <span className="text-white text-xl font-semibold">Syncing</span>
+        </div>
+        )}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
