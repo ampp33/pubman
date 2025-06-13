@@ -365,10 +365,11 @@ export default function DesignsChart() {
         </div>
       </div>
       <div className="bg-white shadow rounded-md overflow-hidden relative">
-        {isSyncing && (<div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-50">
-          <span className="text-white text-xl font-semibold">Syncing</span>
+        <div className={`absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 transition-opacity duration-500 ${
+                isSyncing ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+              }`}>
+          <span className="text-white text-xl font-semibold">Syncing...</span>
         </div>
-        )}
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50">
